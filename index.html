@@ -4,38 +4,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>버미더머니 : 연습생을 이겨라</title>
+    
+    <link rel="icon" type="image/png" href="logo.png">
+
     <style>
         :root { --accent: #f59e0b; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; }
         body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
         .app-wrapper { max-width: 1200px; margin: 0 auto; }
+        
         header { text-align: center; padding: 20px 0; }
         header h1 { font-size: 2.8rem; color: var(--accent); margin: 0; font-weight: 900; letter-spacing: 2px; }
 
-        /* 리더보드 */
+        /* 상단 현황판 */
         .points-board { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px; }
         .team-status { background: var(--card); padding: 20px 10px; border-radius: 15px; text-align: center; border: 2px solid #334155; }
         .team-status.active { border-color: var(--accent); box-shadow: 0 0 20px rgba(245, 158, 11, 0.5); transform: scale(1.05); }
         .leader-icon-sm { width: 75px; height: 75px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; border: 3px solid var(--accent); background: #0f172a; }
+        .p-name { font-weight: bold; font-size: 1.1rem; display: block; margin-bottom: 5px; }
 
-        /* 룰렛 영역 - 돌아가는 사진 강조 */
+        /* 룰렛 영역 */
         .roulette-container { background: linear-gradient(180deg, #000 0%, #1e293b 100%); padding: 40px; text-align: center; border-radius: 25px; margin-bottom: 30px; border: 3px solid var(--accent); }
-        .main-pic-wrapper { width: 200px; height: 200px; border-radius: 50%; border: 6px solid var(--accent); margin: 0 auto 20px; background: #0f172a; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; box-shadow: 0 0 30px rgba(245, 158, 11, 0.2); }
-        .main-leader-img { width: 100%; height: 100%; object-fit: cover; } 
-        .main-placeholder { font-size: 2.2rem; font-weight: 900; color: var(--accent); position: absolute; display: none; }
+        .main-pic-wrapper { width: 200px; height: 200px; border-radius: 50%; border: 6px solid var(--accent); margin: 0 auto 20px; background: #0f172a; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+        .main-leader-img { width: 100%; height: 100%; object-fit: cover; display: none; } 
+        .main-placeholder { font-size: 2.2rem; font-weight: 900; color: var(--accent); position: absolute; }
 
         #roulette-display { font-size: 2.8rem; font-weight: 900; margin-bottom: 25px; color: #fff; height: 3.5rem; }
-        .btn-spin { background: var(--accent); color: #000; border: none; padding: 18px 80px; font-weight: 900; cursor: pointer; border-radius: 50px; font-size: 1.4rem; box-shadow: 0 5px 0 #b45309; transition: 0.1s; }
+        .btn-spin { background: var(--accent); color: #000; border: none; padding: 18px 80px; font-weight: 900; cursor: pointer; border-radius: 50px; font-size: 1.4rem; box-shadow: 0 5px 0 #b45309; }
         .btn-spin:active { transform: translateY(4px); box-shadow: none; }
-        .btn-spin:disabled { background: #475569; cursor: not-allowed; box-shadow: none; transform: none; }
+        .btn-spin:disabled { background: #475569; cursor: not-allowed; box-shadow: none; }
 
-        /* 플레이어 그리드 */
+        /* 선수 그리드 */
         .draft-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
         .draft-item { background: var(--card); border-radius: 12px; overflow: hidden; border: 1px solid #334155; position: relative; }
         .img-container { width: 100%; height: 200px; background: #0f172a; display: flex; align-items: center; justify-content: center; position: relative; }
         .player-img { width: 100%; height: 100%; object-fit: cover; z-index: 2; position: relative; }
         .img-placeholder { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 900; color: #475569; background: #0f172a; z-index: 1; }
 
-        .item-detail { padding: 12px; text-align: center; }
+        .item-detail { padding: 12px; text-align: center; background: var(--card); }
         .item-cost { color: var(--accent); font-weight: bold; margin-bottom: 10px; display: block; font-size: 1.1rem; }
         .btn-select { width: 100%; padding: 10px; background: var(--accent); border: none; color: #000; cursor: pointer; font-weight: 800; border-radius: 6px; }
         .btn-select:disabled { background: #475569; opacity: 0.5; }
@@ -46,16 +51,19 @@
 <body>
 
 <div class="app-wrapper">
-    <header><h1>버미더머니 : 연습생을 이겨라</h1></header>
+    <header>
+        <h1>버미더머니 : 연습생을 이겨라</h1>
+    </header>
+
     <div class="points-board" id="points-board"></div>
 
     <div class="roulette-container">
         <div class="main-pic-wrapper">
             <div class="main-placeholder" id="main-wait-text">READY</div>
-            <img src="" class="main-leader-img" id="main-leader-pic" style="display:none;">
+            <img src="" class="main-leader-img" id="main-leader-pic">
         </div>
-        <div id="roulette-display">룰렛을 돌려주세요</div>
-        <button onclick="spin()" id="spin-btn" class="btn-spin">순서 정하기 (SPIN)</button>
+        <div id="roulette-display">순서를 정해주세요</div>
+        <button onclick="spin()" id="spin-btn" class="btn-spin">차례 정하기 (SPIN)</button>
     </div>
 
     <div class="draft-grid" id="draft-grid"></div>
@@ -63,11 +71,12 @@
 </div>
 
 <script>
+    // 이름 업데이트: 호발 -> 호발☆, 찌로 -> 찌로³
     const teams = [
         { name: "밤베", points: 1000, file: "leader1.jpg" },
-        { name: "찌로", points: 1000, file: "leader2.jpg" },
+        { name: "찌로³", points: 1000, file: "leader2.jpg" },
         { name: "윰로로", points: 1000, file: "leader3.jpg" },
-        { name: "호발", points: 1000, file: "leader4.jpg" },
+        { name: "호발☆", points: 1000, file: "leader4.jpg" },
         { name: "프하", points: 1000, file: "leader5.jpg" }
     ];
 
@@ -116,41 +125,28 @@
         const btn = document.getElementById('spin-btn');
         
         btn.disabled = true;
-        waitText.style.display = 'none';
-        mainPic.style.display = 'block';
+        waitText.style.display = 'block';
+        mainPic.style.display = 'none';
 
         let count = 0;
         let shuffleInterval = setInterval(() => {
             const tempIdx = Math.floor(Math.random() * teams.length);
             const leader = teams[tempIdx];
-            
-            // 돌아가는 동안 이름과 사진을 계속 바꿈
             display.innerText = leader.name;
             mainPic.src = leader.file;
             
-            // 사진 로딩 실패 대비
-            mainPic.onerror = () => {
-                mainPic.style.display = 'none';
-                waitText.style.display = 'block';
-                waitText.innerText = leader.name;
-            };
-            mainPic.onload = () => {
-                mainPic.style.display = 'block';
-                waitText.style.display = 'none';
-            };
+            mainPic.onload = () => { mainPic.style.display = 'block'; waitText.style.display = 'none'; };
+            mainPic.onerror = () => { mainPic.style.display = 'none'; waitText.style.display = 'block'; waitText.innerText = leader.name; };
 
             count++;
-            if(count > 25) { // 약 2초간 섞기
+            if(count > 25) {
                 clearInterval(shuffleInterval);
                 currentTurnTeamIdx = Math.floor(Math.random() * teams.length);
                 const winner = teams[currentTurnTeamIdx];
-                
-                display.innerHTML = `<span style="color:var(--accent)">🎯 ${winner.name} 턴!</span>`;
+                display.innerHTML = `<span style="color:var(--accent)">🎯 ${winner.name} 차례!</span>`;
                 mainPic.src = winner.file;
-                
                 btn.disabled = false;
                 updatePointsBoard();
-                addLog(`[${winner.name}] 리더가 선택되었습니다.`);
             }
         }, 80);
     }
@@ -163,12 +159,11 @@
 
         team.points -= player.cost;
         player.stock = 0;
-        addLog(`✅ ${team.name} -> ${idx + 1}번 영입 완료!`);
-        
+        addLog(`✅ ${team.name} -> ${idx + 1}번 영입`);
         currentTurnTeamIdx = null; 
         updatePointsBoard();
         render();
-        document.getElementById('roulette-display').innerText = '다음 순서를 정하세요';
+        document.getElementById('roulette-display').innerText = '다음 차례를 정해주세요';
     }
 
     function addLog(msg) {
@@ -180,6 +175,7 @@
     window.addEventListener("message", (event) => {
         const data = event.data;
         if (data.type === "CHAT_SELECT" && currentTurnTeamIdx !== null) {
+            // 특수문자가 포함된 이름도 정확히 대조합니다.
             if (teams[currentTurnTeamIdx].name === data.leaderName) {
                 handleSelection(data.playerNum - 1);
             }
