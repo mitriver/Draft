@@ -5,42 +5,44 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>버미더머니 : 연습생을 이겨라</title>
     
-    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAl0lEQVQ4T2P8z8AARADMYmD4j0McqxIDuYpBAmSAmIDxfwYmYmX9f4YfSBrIsYAxmAmZgO4/AxMTun9M/xkYmCHsh6A6YIDxfzoW98NMoPwZfshisHtwA6gBRv8Zf0DcgGIBfD9M/xkYmCHuB7mB3ADG/4w/SArE8WccEgeRPIhcAFIPYisIuwAyXmECpL6fGZAAST8p9ZPrZ6IBALv9Phf6T83mAAAAAElFTkSuQmCC">
+    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAn0lEQVQ4T2P8z8AARADMYmD4j0McqxIDuYpBAmSAmIDxfwYmYmX9f4YfSBrIsYAxmAmZgO4/AxMTun9M/xkYmCHsh6A6YIDxfzoW98NMoPwZfshisHtwA6gBRv8Zf0DcgGIBfD9M/xkYmCHuB7mB3ADG/4w/SArE8WccEgeRPIhcAFIPYisIuwAyXmECpL6fGZAAST8p9ZPrZ6IBALv9Phf6T83mAAAAAElFTkSuQmCC">
 
     <style>
         :root { --accent: #f59e0b; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; }
         body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
         .app-wrapper { max-width: 1200px; margin: 0 auto; }
         
-        header { text-align: center; padding: 20px 0; }
-        header h1 { font-size: 2.8rem; color: var(--accent); margin: 0; font-weight: 900; letter-spacing: 2px; }
+        header { text-align: center; padding: 10px 0; }
+        header h1 { font-size: 2.5rem; color: var(--accent); margin: 0; font-weight: 900; }
 
-        /* 현황판 */
-        .points-board { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px; }
-        .team-status { background: var(--card); padding: 20px 10px; border-radius: 15px; text-align: center; border: 2px solid #334155; }
+        /* 상단 팀 현황 */
+        .points-board { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .team-status { background: var(--card); padding: 15px; border-radius: 15px; text-align: center; border: 2px solid #334155; transition: 0.3s; }
         .team-status.active { border-color: var(--accent); box-shadow: 0 0 20px rgba(245, 158, 11, 0.5); transform: scale(1.05); }
-        .leader-icon-sm { width: 75px; height: 75px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; border: 3px solid var(--accent); background: #0f172a; }
+        .leader-icon-sm { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); margin-bottom: 5px; }
 
-        /* 룰렛 */
-        .roulette-container { background: linear-gradient(180deg, #000 0%, #1e293b 100%); padding: 40px; text-align: center; border-radius: 25px; margin-bottom: 30px; border: 3px solid var(--accent); }
-        .main-pic-wrapper { width: 200px; height: 200px; border-radius: 50%; border: 6px solid var(--accent); margin: 0 auto 20px; background: #0f172a; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
-        .main-leader-img { width: 100%; height: 100%; object-fit: cover; display: none; } 
-        #roulette-display { font-size: 2.8rem; font-weight: 900; margin-bottom: 25px; color: #fff; height: 3.5rem; }
-        .btn-spin { background: var(--accent); color: #000; border: none; padding: 18px 80px; font-weight: 900; cursor: pointer; border-radius: 50px; font-size: 1.4rem; box-shadow: 0 5px 0 #b45309; }
+        /* 룰렛 리더 사진 영역 */
+        .roulette-container { background: linear-gradient(180deg, #000 0%, #1e293b 100%); padding: 30px; text-align: center; border-radius: 20px; border: 2px solid var(--accent); margin-bottom: 30px; }
+        .main-pic-wrapper { width: 180px; height: 180px; border-radius: 50%; border: 5px solid var(--accent); margin: 0 auto 15px; background: #0f172a; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .main-leader-img { width: 100%; height: 100%; object-fit: cover; display: none; }
+        .main-placeholder { font-size: 2rem; font-weight: 900; color: var(--accent); position: absolute; }
 
-        /* 선수 그리드 (55개 박스) */
-        .draft-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; margin-top: 30px; }
-        .draft-item { background: var(--card); border-radius: 12px; overflow: hidden; border: 1px solid #334155; text-align: center; }
-        .img-box { width: 100%; height: 180px; background: #0f172a; display: flex; align-items: center; justify-content: center; position: relative; }
-        .player-img { width: 100%; height: 100%; object-fit: cover; position: absolute; z-index: 2; }
-        .player-num { font-size: 3rem; font-weight: 900; color: #334155; z-index: 1; }
-        .info-box { padding: 10px; }
-        .cost { color: var(--accent); font-weight: bold; font-size: 1.2rem; }
-        .btn-select { width: 100%; padding: 8px; margin-top: 5px; background: var(--accent); border: none; cursor: pointer; font-weight: bold; border-radius: 4px; }
-        .btn-select:disabled { background: #475569; cursor: not-allowed; }
+        #roulette-display { font-size: 2.2rem; font-weight: 900; margin-bottom: 15px; color: #fff; height: 2.5rem; }
+        .btn-spin { background: var(--accent); color: #000; border: none; padding: 12px 50px; font-weight: 900; cursor: pointer; border-radius: 50px; font-size: 1.2rem; box-shadow: 0 4px 0 #b45309; }
+        .btn-spin:active { transform: translateY(3px); box-shadow: none; }
 
-        /* 로그 */
-        #log { margin-top: 30px; background: #000; padding: 20px; height: 150px; overflow-y: auto; font-family: 'Consolas', monospace; color: #22c55e; border: 1px solid #334155; border-radius: 12px; }
+        /* 선수 그리드 (55개) */
+        .draft-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+        .draft-item { background: var(--card); border-radius: 10px; overflow: hidden; border: 1px solid #334155; text-align: center; }
+        .img-box { height: 120px; background: #000; display: flex; align-items: center; justify-content: center; position: relative; }
+        .p-num { font-size: 2rem; font-weight: 900; color: #334155; z-index: 1; }
+        .p-img { width: 100%; height: 100%; object-fit: cover; position: absolute; z-index: 2; }
+        .p-info { padding: 8px; }
+        .p-cost { color: var(--accent); font-weight: bold; font-size: 1rem; margin-bottom: 5px; }
+        .btn-buy { width: 100%; padding: 6px; background: var(--accent); border: none; font-weight: 900; border-radius: 4px; cursor: pointer; font-size: 0.9rem; }
+        .btn-buy:disabled { background: #475569; opacity: 0.5; }
+
+        #log { margin-top: 20px; background: #000; padding: 15px; height: 100px; overflow-y: auto; color: #22c55e; border-radius: 10px; font-family: monospace; font-size: 0.85rem; }
     </style>
 </head>
 <body>
@@ -52,15 +54,15 @@
 
     <div class="roulette-container">
         <div class="main-pic-wrapper">
+            <div class="main-placeholder" id="main-wait-text">READY</div>
             <img src="" class="main-leader-img" id="main-leader-pic">
         </div>
         <div id="roulette-display">순서를 정해주세요</div>
-        <button onclick="spin()" id="spin-btn" class="btn-spin">차례 정하기 (SPIN)</button>
+        <button onclick="spin()" id="spin-btn" class="btn-spin">SPIN</button>
     </div>
 
     <div class="draft-grid" id="draft-grid"></div>
-
-    <div id="log">>> 연동 대기 중...</div>
+    <div id="log">> 채팅 연동 대기 중...</div>
 </div>
 
 <script>
@@ -72,101 +74,95 @@
         { name: "프하", points: 1000, file: "leader5.jpg" }
     ];
 
-    let currentTurnTeamIdx = null;
-
-    // 선수 55명 데이터 생성 (150P ~ 600P 랜덤)
+    let currentTurnIdx = null;
     const players = Array.from({ length: 55 }, (_, i) => ({
         id: i + 1,
-        cost: Math.floor(Math.random() * (600 - 150 + 1)) + 150,
-        isSold: false,
-        img: `${i + 1}.jpg`
+        cost: Math.floor(Math.random() * 451) + 150,
+        sold: false
     }));
 
-    function updatePointsBoard() {
-        const board = document.getElementById('points-board');
-        board.innerHTML = teams.map((t, idx) => `
-            <div class="team-status ${currentTurnTeamIdx === idx ? 'active' : ''}">
-                <img src="${t.file}" class="leader-icon-sm" onerror="this.style.display='none'">
-                <div class="p-name">${t.name}</div>
-                <div class="p-value">${t.points.toLocaleString()}P</div>
-            </div>
-        `).join('');
-    }
+    function updateUI() {
+        document.getElementById('points-board').innerHTML = teams.map((t, i) => `
+            <div class="team-status ${currentTurnIdx === i ? 'active' : ''}">
+                <img src="${t.file}" class="leader-icon-sm" onerror="this.style.visibility='hidden'">
+                <div style="font-weight:bold; font-size:0.9rem">${t.name}</div>
+                <div style="color:var(--accent); font-size:0.9rem">${t.points.toLocaleString()}P</div>
+            </div>`).join('');
 
-    // ★ 선수 박스 55개 렌더링 함수 ★
-    function renderPlayers() {
-        const grid = document.getElementById('draft-grid');
-        grid.innerHTML = players.map((p, idx) => `
-            <div class="draft-item" style="opacity: ${p.isSold ? '0.3' : '1'}">
+        document.getElementById('draft-grid').innerHTML = players.map((p, i) => `
+            <div class="draft-item" style="opacity: ${p.sold ? '0.3' : '1'}">
                 <div class="img-box">
-                    <span class="player-num">${p.id}</span>
-                    <img src="${p.img}" class="player-img" onerror="this.style.display='none'">
+                    <span class="p-num">${p.id}</span>
+                    <img src="${p.id}.jpg" class="p-img" onerror="this.style.display='none'">
                 </div>
-                <div class="info-box">
-                    <div class="cost">${p.cost}P</div>
-                    <button class="btn-select" onclick="buyPlayer(${idx})" ${p.isSold ? 'disabled' : ''}>
-                        ${p.isSold ? '영입완료' : '영입하기'}
+                <div class="p-info">
+                    <div class="p-cost">${p.cost}P</div>
+                    <button class="btn-buy" onclick="buyPlayer(${i})" ${p.sold ? 'disabled' : ''}>
+                        ${p.sold ? '영입완료' : '영입'}
                     </button>
                 </div>
-            </div>
-        `).join('');
+            </div>`).join('');
     }
 
     function spin() {
         const btn = document.getElementById('spin-btn');
+        const display = document.getElementById('roulette-display');
+        const mainPic = document.getElementById('main-leader-pic');
+        const waitText = document.getElementById('main-wait-text');
+        
         btn.disabled = true;
         let count = 0;
-        let shuffle = setInterval(() => {
-            let tempIdx = Math.floor(Math.random() * teams.length);
-            document.getElementById('roulette-display').innerText = teams[tempIdx].name;
-            count++;
-            if(count > 20) {
-                clearInterval(shuffle);
-                currentTurnTeamIdx = Math.floor(Math.random() * teams.length);
-                document.getElementById('roulette-display').innerHTML = `<span style="color:var(--accent)">🎯 ${teams[currentTurnTeamIdx].name} 차례!</span>`;
+        
+        let interval = setInterval(() => {
+            let temp = Math.floor(Math.random() * teams.length);
+            let leader = teams[temp];
+            display.innerText = leader.name;
+            
+            // 이미지 미리보기 처리
+            mainPic.src = leader.file;
+            mainPic.style.display = 'block';
+            waitText.style.display = 'none';
+            mainPic.onerror = () => { mainPic.style.display = 'none'; waitText.style.display = 'block'; waitText.innerText = leader.name; };
+
+            if (count++ > 20) {
+                clearInterval(interval);
+                currentTurnIdx = Math.floor(Math.random() * teams.length);
+                const winner = teams[currentTurnIdx];
+                
+                display.innerHTML = `🎯 <span style="color:var(--accent)">${winner.name} 차례!</span>`;
+                mainPic.src = winner.file;
                 btn.disabled = false;
-                updatePointsBoard();
-                addLog(`${teams[currentTurnTeamIdx].name}의 차례가 되었습니다.`);
+                updateUI();
+                addLog(`${winner.name} 차례 당첨!`);
             }
         }, 100);
     }
 
     function buyPlayer(idx) {
-        if(currentTurnTeamIdx === null) {
-            alert("룰렛을 먼저 돌려주세요!");
-            return;
-        }
-        const team = teams[currentTurnTeamIdx];
+        if (currentTurnIdx === null) return alert("룰렛을 먼저 돌려주세요!");
+        const team = teams[currentTurnIdx];
         const player = players[idx];
-
-        if(team.points >= player.cost) {
+        if (team.points >= player.cost) {
             team.points -= player.cost;
-            player.isSold = true;
-            addLog(`✅ ${team.name} -> ${player.id}번 연습생 영입!`);
-            currentTurnTeamIdx = null; // 턴 종료
-            updatePointsBoard();
-            renderPlayers();
-        } else {
-            alert("포인트가 부족합니다!");
-        }
+            player.sold = true;
+            addLog(`✅ ${team.name} -> ${player.id}번 영입`);
+            currentTurnIdx = null; 
+            updateUI();
+        } else { alert("포인트 부족!"); }
     }
 
     function addLog(msg) {
         const log = document.getElementById('log');
-        log.innerHTML = `>> ${msg}<br>` + log.innerHTML;
+        log.innerHTML = `> ${msg}<br>` + log.innerHTML;
     }
 
-    // 채팅 연동 수신부
     window.addEventListener("message", (e) => {
-        if (e.data.type === "CHAT_SELECT" && currentTurnTeamIdx !== null) {
-            if (teams[currentTurnTeamIdx].name === e.data.leaderName) {
-                buyPlayer(e.data.playerNum - 1);
-            }
+        if (e.data.type === "CHAT_SELECT" && currentTurnIdx !== null) {
+            if (teams[currentTurnIdx].name === e.data.leaderName) buyPlayer(e.data.playerNum - 1);
         }
     });
 
-    updatePointsBoard();
-    renderPlayers(); // 초기 55개 박스 생성
+    updateUI();
 </script>
 </body>
 </html>
