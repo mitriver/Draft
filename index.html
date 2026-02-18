@@ -8,25 +8,31 @@
         body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; }
         .app-wrapper { max-width: 1200px; margin: 0 auto; text-align: center; }
         
-        /* 헤더 로고 크기 축소 */
-        .main-header { padding: 10px 0; margin-bottom: 10px; border-bottom: 1px solid #334155; }
+        /* 헤더 로고 유지 (작은 크기) */
+        .main-header { padding: 10px 0; margin-bottom: 10px; }
         .logo-img { width: 150px; height: auto; display: block; margin: 0 auto; }
-        .err-msg { font-size: 0.8rem; color: #ff4444; margin-top: 5px; }
 
         /* 현황판 5열 */
         .points-board { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 20px 0; }
-        .team-status { background: var(--card); padding: 10px; border-radius: 10px; border: 2px solid #334155; }
-        .team-status.active { border-color: var(--accent); box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); }
+        .team-status { background: var(--card); padding: 10px; border-radius: 10px; border: 2px solid #334155; transition: 0.3s; }
+        .team-status.active { border-color: var(--accent); box-shadow: 0 0 15px rgba(245, 158, 11, 0.4); transform: scale(1.05); }
         .leader-icon { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); background: #000; }
 
-        /* 돌림판 */
-        .roulette-box { background: #000; padding: 20px; border-radius: 20px; border: 2px solid var(--accent); margin-bottom: 20px; }
-        #main-leader-pic { width: 120px; height: 120px; border-radius: 50%; border: 3px solid var(--accent); display: none; margin: 0 auto 10px; }
+        /* 돌림판 영역 */
+        .roulette-box { background: #000; padding: 25px; border-radius: 20px; border: 3px solid var(--accent); margin-bottom: 25px; }
+        .main-pic-wrapper { 
+            width: 150px; height: 150px; border-radius: 50%; border: 4px solid var(--accent); 
+            margin: 0 auto 15px; background: #0f172a; overflow: hidden; 
+            display: flex; align-items: center; justify-content: center; position: relative;
+        }
+        /* ★ 중앙 사진: 기본적으로 보이게 설정 ★ */
+        #main-leader-pic { width: 100%; height: 100%; object-fit: cover; display: none; }
+        #main-wait-text { font-size: 2rem; font-weight: 900; color: var(--accent); }
         
         /* 드래프트 그리드 5열 */
         .draft-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
         .draft-item { background: var(--card); border-radius: 8px; border: 1px solid #334155; overflow: hidden; }
-        .img-placeholder { height: 120px; background: #000; display: flex; align-items: center; justify-content: center; position: relative; }
+        .img-placeholder { height: 130px; background: #000; display: flex; align-items: center; justify-content: center; position: relative; }
         .p-img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
     </style>
 </head>
@@ -34,16 +40,18 @@
 
 <div class="app-wrapper">
     <header class="main-header">
-        <img src="logo.jpg" class="logo-img" alt="LOGO" onerror="this.style.display='none'; document.getElementById('logo-err').innerText='logo.jpg 파일을 찾을 수 없음';">
-        <div id="logo-err" class="err-msg"></div>
+        <img src="logo.jpg" class="logo-img" alt="LOGO" onerror="this.style.display='none';">
     </header>
 
     <div class="points-board" id="points-board"></div>
 
     <div class="roulette-box">
-        <img src="" id="main-leader-pic">
-        <div id="roulette-name" style="font-size: 2rem; font-weight: 900; margin-bottom: 15px;">SPIN!</div>
-        <button onclick="spin()" id="spin-btn" style="background:var(--accent); border:none; padding:10px 40px; font-weight:900; border-radius:30px; cursor:pointer;">추첨 시작</button>
+        <div class="main-pic-wrapper">
+            <div id="main-wait-text">READY</div>
+            <img src="" id="main-leader-pic">
+        </div>
+        <div id="roulette-name" style="font-size: 2.2rem; font-weight: 900; margin-bottom: 20px; height: 3rem;">SPIN을 눌러주세요</div>
+        <button onclick="spin()" id="spin-btn" style="background:var(--accent); color:#000; border:none; padding:12px 60px; font-weight:900; border-radius:40px; font-size:1.2rem; cursor:pointer; box-shadow: 0 4px 0 #b45309;">SPIN</button>
     </div>
 
     <div class="draft-grid" id="draft-grid"></div>
@@ -64,44 +72,54 @@
     function updateUI() {
         document.getElementById('points-board').innerHTML = teams.map((t, i) => `
             <div class="team-status ${currentIdx === i ? 'active' : ''}">
-                <img src="${t.file}" class="leader-icon" onerror="this.src='https://via.placeholder.com/60?text=Error'">
-                <div style="font-weight:900; font-size:0.9rem; margin-top:5px;">${t.name}</div>
-                <div style="color:var(--accent); font-size:0.8rem;">${t.points.toLocaleString()}P</div>
+                <img src="${t.file}" class="leader-icon" onerror="this.src='https://via.placeholder.com/60?text=L'">
+                <div style="font-weight:900; font-size:1rem; margin-top:5px;">${t.name}</div>
+                <div style="color:var(--accent); font-weight:bold;">${t.points.toLocaleString()}P</div>
             </div>`).join('');
         
         document.getElementById('draft-grid').innerHTML = players.map((p, i) => `
             <div class="draft-item" style="opacity:${p.sold?0.3:1}">
                 <div class="img-placeholder">
-                    <span style="font-size:1.5rem; color:#334155;">${p.id}</span>
+                    <span style="font-size:2rem; color:#334155; font-weight:900;">${p.id}</span>
                     <img src="${p.id}.jpg" class="p-img" onerror="this.style.display='none'">
                 </div>
-                <div style="padding:8px;">
-                    <div style="color:var(--accent); font-weight:bold; font-size:1rem;">${p.cost}P</div>
-                    <button onclick="buy(${i})" style="width:100%; border:none; background:var(--accent); font-weight:900; cursor:pointer; margin-top:5px;" ${p.sold?'disabled':''}>영입</button>
+                <div style="padding:10px;">
+                    <div style="color:var(--accent); font-weight:bold; font-size:1.2rem;">${p.cost}P</div>
+                    <button onclick="buy(${i})" style="width:100%; border:none; background:var(--accent); font-weight:900; padding:8px; border-radius:5px; cursor:pointer; margin-top:5px;" ${p.sold?'disabled':''}>${p.sold?'완료':'영입'}</button>
                 </div>
             </div>`).join('');
     }
 
+    // ★ 돌림판 사진 연출 로직 ★
     function spin() {
         const btn = document.getElementById('spin-btn');
         const pic = document.getElementById('main-leader-pic');
-        btn.disabled = true;
+        const txt = document.getElementById('main-wait-text');
         
+        btn.disabled = true;
+        txt.style.display = 'none';
+        pic.style.display = 'block';
+
         let count = 0;
-        let interval = setInterval(() => {
+        let shuffle = setInterval(() => {
+            // 돌아가는 동안 사진과 이름이 랜덤하게 바뀜
             let tempIdx = Math.floor(Math.random() * teams.length);
+            pic.src = teams[tempIdx].file;
             document.getElementById('roulette-name').innerText = teams[tempIdx].name;
+            
             if(count++ > 15) {
-                clearInterval(interval);
+                clearInterval(shuffle);
                 currentIdx = Math.floor(Math.random() * teams.length);
                 const winner = teams[currentIdx];
-                document.getElementById('roulette-name').innerText = "🎯 " + winner.name;
+                
+                // 최종 결과 출력
+                document.getElementById('roulette-name').innerHTML = `🎯 <span style="color:var(--accent)">${winner.name}</span>`;
                 pic.src = winner.file;
-                pic.style.display = 'block';
+                
                 btn.disabled = false;
                 updateUI();
             }
-        }, 80);
+        }, 100);
     }
 
     function buy(i) {
@@ -112,9 +130,14 @@
             players[i].sold = true;
             currentIdx = null;
             updateUI();
+            
+            // 영입 후 초기화
             document.getElementById('main-leader-pic').style.display = 'none';
+            document.getElementById('main-wait-text').style.display = 'block';
+            document.getElementById('roulette-name').innerText = 'SPIN을 눌러주세요';
         }
     }
+
     updateUI();
 </script>
 </body>
