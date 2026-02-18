@@ -19,9 +19,12 @@
         .p-name { display: block; font-size: 1.1rem; color: #fff; font-weight: bold; }
         .p-value { font-size: 1.4rem; font-weight: 900; color: var(--accent); }
 
-        /* 룰렛 */
+        /* 룰렛 영역 - 빈 사진 처리 */
         .roulette-container { background: linear-gradient(180deg, #000 0%, #1e293b 100%); padding: 40px; text-align: center; border-radius: 25px; margin-bottom: 30px; border: 3px solid var(--accent); }
-        .main-leader-img { width: 180px; height: 180px; border-radius: 50%; object-fit: cover; border: 5px solid var(--accent); margin-bottom: 20px; background: #0f172a; }
+        .main-pic-wrapper { width: 180px; height: 180px; border-radius: 50%; border: 5px solid var(--accent); margin: 0 auto 20px; background: #0f172a; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
+        .main-leader-img { width: 100%; height: 100%; object-fit: cover; display: none; } /* 초기엔 숨김 */
+        .main-placeholder { font-size: 1.5rem; font-weight: 900; color: #475569; position: absolute; }
+
         #roulette-display { font-size: 2.5rem; font-weight: 800; margin-bottom: 25px; color: #fff; }
         .btn-spin { background: var(--accent); color: #000; border: none; padding: 15px 70px; font-weight: 900; cursor: pointer; border-radius: 50px; font-size: 1.3rem; box-shadow: 0 4px 0 #b45309; }
         .btn-spin:active { transform: translateY(3px); box-shadow: none; }
@@ -30,13 +33,11 @@
         /* 플레이어 그리드 */
         .draft-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
         .draft-item { background: var(--card); border-radius: 12px; overflow: hidden; border: 1px solid #334155; position: relative; }
-        
-        /* 이미지 로딩 실패 시 보여줄 기본 박스 스타일 */
-        .img-container { width: 100%; height: 200px; background: #0f172a; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .player-img { width: 100%; height: 100%; object-fit: cover; }
-        .img-placeholder { position: absolute; top: 0; left: 0; width: 100%; height: 200px; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 900; color: #475569; background: #0f172a; z-index: 1; }
+        .img-container { width: 100%; height: 200px; background: #0f172a; display: flex; align-items: center; justify-content: center; position: relative; }
+        .player-img { width: 100%; height: 100%; object-fit: cover; z-index: 2; position: relative; }
+        .img-placeholder { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: 900; color: #475569; background: #0f172a; z-index: 1; }
 
-        .item-detail { padding: 12px; text-align: center; position: relative; z-index: 2; background: var(--card); }
+        .item-detail { padding: 12px; text-align: center; background: var(--card); }
         .item-cost { color: var(--accent); font-weight: bold; margin-bottom: 10px; display: block; }
         .btn-select { width: 100%; padding: 10px; background: var(--accent); border: none; color: #000; cursor: pointer; font-weight: 800; border-radius: 6px; }
         .btn-select:disabled { background: #475569; opacity: 0.5; }
@@ -51,13 +52,16 @@
     <div class="points-board" id="points-board"></div>
 
     <div class="roulette-container">
-        <img src="leader1.jpg" class="main-leader-img" id="main-leader-pic" onerror="this.src='https://via.placeholder.com/180/0f172a/f59e0b?text=READY'">
+        <div class="main-pic-wrapper">
+            <div class="main-placeholder" id="main-wait-text">READY</div>
+            <img src="" class="main-leader-img" id="main-leader-pic" onerror="this.style.display='none'">
+        </div>
         <div id="roulette-display">룰렛을 돌려주세요</div>
         <button onclick="spin()" id="spin-btn" class="btn-spin">순서 정하기 (SPIN)</button>
     </div>
 
     <div class="draft-grid" id="draft-grid"></div>
-    <div id="log">>> 시스템 가동 완료. 사진이 없으면 번호가 대신 표시됩니다.</div>
+    <div id="log">>> 시스템 가동... 대기 중.</div>
 </div>
 
 <script>
@@ -71,7 +75,6 @@
 
     let currentTurnTeamIdx = null;
 
-    // 플레이어 55명 생성
     const players = Array.from({ length: 55 }, (_, i) => ({
         id: i + 1,
         cost: Math.floor(Math.random() * (600 - 150 + 1)) + 150,
@@ -90,11 +93,9 @@
         `).join('');
     }
 
-    // 사진 로딩 실패 시 호출되는 함수 (무한 로딩 방지)
+    // 사진 로드 실패 시 깔끔하게 숨기기
     function imgError(img) {
-        img.style.display = 'none'; // 깨진 아이콘 숨기기
-        const placeholder = img.parentElement.querySelector('.img-placeholder');
-        if (placeholder) placeholder.style.display = 'flex'; // 번호표 보여주기
+        img.style.display = 'none';
     }
 
     function render() {
@@ -118,21 +119,39 @@
     function spin() {
         const display = document.getElementById('roulette-display');
         const mainPic = document.getElementById('main-leader-pic');
+        const waitText = document.getElementById('main-wait-text');
         const btn = document.getElementById('spin-btn');
+        
         btn.disabled = true;
+        mainPic.style.display = 'none'; // 돌리는 동안은 일단 사진 숨김
+        waitText.style.display = 'block';
+        waitText.innerText = "PICKING...";
 
         let count = 0;
         const interval = setInterval(() => {
             const tempIdx = Math.floor(Math.random() * teams.length);
             display.innerText = teams[tempIdx].name;
-            mainPic.src = teams[tempIdx].file;
             count++;
+
             if(count > 20) {
                 clearInterval(interval);
                 currentTurnTeamIdx = Math.floor(Math.random() * teams.length);
                 const winner = teams[currentTurnTeamIdx];
+                
                 display.innerHTML = `<span style="color:var(--accent)">🎯 ${winner.name} 턴!</span>`;
+                
+                // 사진 파일이 있을 때만 보여줌
                 mainPic.src = winner.file;
+                mainPic.onload = () => {
+                    mainPic.style.display = 'block';
+                    waitText.style.display = 'none';
+                };
+                mainPic.onerror = () => {
+                    mainPic.style.display = 'none';
+                    waitText.style.display = 'block';
+                    waitText.innerText = winner.name; // 사진 없으면 이름으로 대체
+                };
+
                 btn.disabled = false;
                 updatePointsBoard();
             }
@@ -147,12 +166,15 @@
 
         team.points -= player.cost;
         player.stock = 0;
-        addLog(`✅ ${team.name} -> ${idx + 1}번 영입 (${player.cost}P)`);
+        addLog(`✅ ${team.name} -> ${idx + 1}번 영입`);
         
         currentTurnTeamIdx = null; 
         updatePointsBoard();
         render();
         document.getElementById('roulette-display').innerText = '다음 룰렛을 돌려주세요';
+        document.getElementById('main-leader-pic').style.display = 'none';
+        document.getElementById('main-wait-text').style.display = 'block';
+        document.getElementById('main-wait-text').innerText = "READY";
     }
 
     function addLog(msg) {
@@ -161,7 +183,6 @@
         log.scrollTop = log.scrollHeight;
     }
 
-    // 채팅 수신부 (이전과 동일)
     window.addEventListener("message", (event) => {
         const data = event.data;
         if (data.type === "CHAT_SELECT" && currentTurnTeamIdx !== null) {
