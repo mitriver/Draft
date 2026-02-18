@@ -9,9 +9,10 @@
         body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
         .app-wrapper { max-width: 1400px; margin: 0 auto; }
         
-        /* 헤더 로고 설정 (크기 반으로 축소) */
-        .main-header { text-align: center; padding: 10px 0; margin-bottom: 15px; }
+        /* 헤더 로고: 엑박 방지 처리 */
+        .main-header { text-align: center; padding: 10px 0; margin-bottom: 15px; min-height: 50px; }
         .logo-img { max-width: 300px; width: 100%; height: auto; display: block; margin: 0 auto; }
+        .logo-fallback { font-size: 2.5rem; font-weight: 900; color: var(--accent); display: none; }
 
         .points-board { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; border-top: 1px solid #334155; padding-top: 20px; }
         .team-status { background: var(--card); padding: 15px; border-radius: 12px; text-align: center; border: 2px solid #334155; }
@@ -26,22 +27,27 @@
         .draft-item { background: var(--card); border-radius: 10px; overflow: hidden; border: 1px solid #334155; text-align: center; }
         .img-box { height: 150px; background: #000; display: flex; align-items: center; justify-content: center; position: relative; }
         .p-img { width: 100%; height: 100%; object-fit: cover; position: absolute; z-index: 2; }
-        .btn-buy { width: 100%; padding: 8px; background: var(--accent); border: none; font-weight: 900; border-radius: 6px; cursor: pointer; }
     </style>
 </head>
 <body>
     <div class="app-wrapper">
-        <header class="main-header"><img src="logo.jpg" class="logo-img" alt="LOGO"></header>
+        <header class="main-header">
+            <img src="logo.jpg" class="logo-img" id="main-logo" alt="LOGO" 
+                 onerror="this.style.display='none'; document.getElementById('logo-text').style.display='block';">
+            <div id="logo-text" class="logo-fallback">버미더머니 : 연습생을 이겨라</div>
+        </header>
         
         <div class="points-board" id="points-board"></div>
+
         <div class="roulette-container">
             <div class="main-pic-wrapper">
                 <div id="main-wait-text" style="font-size:2rem; font-weight:900; color:var(--accent);">READY</div>
                 <img src="" id="main-leader-pic">
             </div>
-            <div id="roulette-display" style="font-size:2rem; font-weight:900; margin-bottom:15px; height:3rem;">순서를 정해주세요</div>
-            <button onclick="spin()" id="spin-btn" style="background:var(--accent); color:#000; border:none; padding:12px 50px; font-weight:900; border-radius:40px; font-size:1.2rem; cursor:pointer;">SPIN</button>
+            <div id="roulette-display" style="font-size:2.2rem; font-weight:900; margin-bottom:15px; height:3rem;">순서를 정해주세요</div>
+            <button onclick="spin()" id="spin-btn" style="background:var(--accent); color:#000; border:none; padding:12px 60px; font-weight:900; border-radius:40px; font-size:1.3rem; cursor:pointer; box-shadow: 0 4px 0 #b45309;">SPIN</button>
         </div>
+
         <div class="draft-grid" id="draft-grid"></div>
     </div>
 
@@ -59,14 +65,18 @@
         function updateUI() {
             document.getElementById('points-board').innerHTML = teams.map((t, i) => `
                 <div class="team-status ${currentIdx === i ? 'active' : ''}">
-                    <img src="${t.file}" class="leader-icon-sm" onerror="this.src='https://via.placeholder.com/80?text=Leader'">
-                    <div style="font-weight:800">${t.name}</div>
+                    <img src="${t.file}" class="leader-icon-sm" onerror="this.src='https://via.placeholder.com/80?text=${t.name}'">
+                    <div style="font-weight:800; font-size:1.1rem;">${t.name}</div>
                     <div style="color:var(--accent); font-weight:bold">${t.points.toLocaleString()}P</div>
                 </div>`).join('');
+            
             document.getElementById('draft-grid').innerHTML = players.map((p, i) => `
                 <div class="draft-item" style="opacity:${p.sold?0.3:1}">
                     <div class="img-box"><span style="font-size:3rem; font-weight:900; color:#334155;">${p.id}</span><img src="${p.id}.jpg" class="p-img" onerror="this.style.display='none'"></div>
-                    <div class="p-info"><div style="color:var(--accent); font-weight:bold; font-size:1.2rem; margin-bottom:8px;">${p.cost}P</div><button class="btn-buy" onclick="buy(${i})" ${p.sold?'disabled':''}>${p.sold?'완료':'영입'}</button></div>
+                    <div class="p-info">
+                        <div style="color:var(--accent); font-weight:bold; font-size:1.2rem; margin-bottom:8px;">${p.cost}P</div>
+                        <button onclick="buy(${i})" style="width:100%; padding:10px; background:var(--accent); border:none; font-weight:900; border-radius:6px; cursor:pointer;" ${p.sold?'disabled':''}>${p.sold?'완료':'영입'}</button>
+                    </div>
                 </div>`).join('');
         }
 
@@ -104,6 +114,7 @@
                 document.getElementById('main-leader-pic').style.display = 'none';
                 document.getElementById('main-wait-text').style.display = 'block';
                 document.getElementById('main-wait-text').innerText = 'READY';
+                document.getElementById('roulette-display').innerText = '다음 차례를 정해주세요';
             }
         }
         updateUI();
