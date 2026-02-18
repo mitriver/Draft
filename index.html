@@ -5,26 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>버미더머니 : 연습생을 이겨라</title>
     
-    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><path d='M50 0 L65 35 L100 50 L65 65 L50 100 L35 65 L0 50 L35 35 Z' fill='%23f59e0b'/></svg>">
 
     <style>
         :root { --accent: #f59e0b; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; }
         body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; overflow-x: hidden; }
         .app-wrapper { max-width: 1200px; margin: 0 auto; }
-        
         header { text-align: center; padding: 20px 0; }
         header h1 { font-size: 2.8rem; color: var(--accent); margin: 0; font-weight: 900; letter-spacing: 2px; text-shadow: 0 0 15px rgba(245, 158, 11, 0.3); }
 
-        /* 현황판 */
         .points-board { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 30px; }
         .team-status { background: var(--card); padding: 20px 10px; border-radius: 15px; text-align: center; border: 2px solid #334155; transition: 0.3s; }
         .team-status.active { border-color: var(--accent); box-shadow: 0 0 20px rgba(245, 158, 11, 0.5); transform: scale(1.05); }
         .leader-icon-sm { width: 75px; height: 75px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; border: 3px solid var(--accent); background: #0f172a; }
-        .p-name { font-weight: bold; font-size: 1.1rem; display: block; margin-bottom: 5px; }
 
-        /* 룰렛 영역 */
         .roulette-container { background: linear-gradient(180deg, #000 0%, #1e293b 100%); padding: 40px; text-align: center; border-radius: 25px; margin-bottom: 30px; border: 3px solid var(--accent); }
-        .main-pic-wrapper { width: 200px; height: 200px; border-radius: 50%; border: 6px solid var(--accent); margin: 0 auto 20px; background: #0f172a; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+        .main-pic-wrapper { width: 200px; height: 200px; border-radius: 50%; border: 6px solid var(--accent); margin: 0 auto 20px; background: #0f172a; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
         .main-leader-img { width: 100%; height: 100%; object-fit: cover; display: none; } 
         .main-placeholder { font-size: 2.2rem; font-weight: 900; color: var(--accent); position: absolute; }
 
@@ -33,7 +29,6 @@
         .btn-spin:active { transform: translateY(4px); box-shadow: none; }
         .btn-spin:disabled { background: #475569; cursor: not-allowed; box-shadow: none; }
 
-        /* 선수 그리드 */
         .draft-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; }
         .draft-item { background: var(--card); border-radius: 12px; overflow: hidden; border: 1px solid #334155; position: relative; }
         .img-container { width: 100%; height: 200px; background: #0f172a; display: flex; align-items: center; justify-content: center; position: relative; }
@@ -45,7 +40,6 @@
         .btn-select { width: 100%; padding: 10px; background: var(--accent); border: none; color: #000; cursor: pointer; font-weight: 800; border-radius: 6px; }
         .btn-select:disabled { background: #475569; opacity: 0.5; }
 
-        /* 로그창 */
         #log { margin-top: 30px; background: #000; padding: 20px; height: 150px; overflow-y: auto; font-family: 'Consolas', monospace; border: 1px solid #334155; border-radius: 12px; border-left: 5px solid #22c55e; }
         .log-msg { margin-bottom: 5px; color: #22c55e; font-size: 0.95rem; }
         .log-chat { color: #38bdf8; font-weight: bold; }
@@ -69,7 +63,7 @@
 
     <div class="draft-grid" id="draft-grid"></div>
     <div id="log">
-        <div class="log-msg log-system">>> [시스템] 연동 대기 중... (채팅 팝업에서 북마크를 눌러주세요)</div>
+        <div class="log-msg log-system">>> [시스템] 연동 대기 중...</div>
     </div>
 </div>
 
@@ -126,7 +120,6 @@
         const mainPic = document.getElementById('main-leader-pic');
         const waitText = document.getElementById('main-wait-text');
         const btn = document.getElementById('spin-btn');
-        
         btn.disabled = true;
         waitText.style.display = 'block';
         mainPic.style.display = 'none';
@@ -137,10 +130,8 @@
             const leader = teams[tempIdx];
             display.innerText = leader.name;
             mainPic.src = leader.file;
-            
             mainPic.onload = () => { mainPic.style.display = 'block'; waitText.style.display = 'none'; };
             mainPic.onerror = () => { mainPic.style.display = 'none'; waitText.style.display = 'block'; waitText.innerText = leader.name; };
-
             count++;
             if(count > 25) {
                 clearInterval(shuffleInterval);
@@ -160,7 +151,6 @@
         const team = teams[currentTurnTeamIdx];
         const player = players[idx];
         if(player.stock === 0 || team.points < player.cost) return;
-
         team.points -= player.cost;
         player.stock = 0;
         addLog(`✅ ${team.name} -> ${idx + 1}번 영입 성공!`);
@@ -176,30 +166,19 @@
         let className = "log-msg";
         if(type === "chat") className += " log-chat";
         if(type === "system") className += " log-system";
-
         log.innerHTML = `<div class="${className}">[${time}] ${msg}</div>` + log.innerHTML;
         log.scrollTop = 0;
     }
 
-    // 외부(북마클릿) 신호 수신
     window.addEventListener("message", (event) => {
         const data = event.data;
         if (data.type === "CHAT_SELECT") {
-            if (!isChatConnected) {
-                isChatConnected = true;
-                addLog("✨ [연동] 채팅 수신 확인됨!", "chat");
-            }
-
+            if (!isChatConnected) { isChatConnected = true; addLog("✨ [연동] 채팅 수신 확인!", "chat"); }
             if (currentTurnTeamIdx !== null) {
                 if (teams[currentTurnTeamIdx].name === data.leaderName) {
-                    addLog(`💬 [명령] ${data.leaderName}: !선택 ${data.playerNum}`, "chat");
                     handleSelection(data.playerNum - 1);
-                } else {
-                    addLog(`🚫 [차단] ${data.leaderName} (현재 차례 아님)`, "system");
-                }
-            } else {
-                addLog(`⚠️ [대기] 룰렛을 먼저 돌려주세요.`, "system");
-            }
+                } else { addLog(`🚫 [차단] ${data.leaderName} (현재 차례 아님)`, "system"); }
+            } else { addLog(`⚠️ [대기] 룰렛을 돌려주세요.`, "system"); }
         }
     });
 
