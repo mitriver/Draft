@@ -6,119 +6,116 @@
     <style>
         :root { --accent: #f59e0b; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; }
         body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; }
-        .app-wrapper { max-width: 1200px; margin: 0 auto; }
+        .app-wrapper { max-width: 1200px; margin: 0 auto; text-align: center; }
         
-        /* ★ 헤더 로고: 크기를 150px로 대폭 축소 ★ */
-        .main-header { text-align: center; padding: 5px 0; margin-bottom: 10px; }
+        /* 헤더 로고 크기 축소 */
+        .main-header { padding: 10px 0; margin-bottom: 10px; border-bottom: 1px solid #334155; }
         .logo-img { width: 150px; height: auto; display: block; margin: 0 auto; }
+        .err-msg { font-size: 0.8rem; color: #ff4444; margin-top: 5px; }
 
         /* 현황판 5열 */
-        .points-board { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 15px; border-top: 1px solid #334155; padding-top: 15px; }
-        .team-status { background: var(--card); padding: 10px; border-radius: 10px; text-align: center; border: 2px solid #334155; }
+        .points-board { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 20px 0; }
+        .team-status { background: var(--card); padding: 10px; border-radius: 10px; border: 2px solid #334155; }
         .team-status.active { border-color: var(--accent); box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); }
-        .leader-icon-sm { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); margin-bottom: 5px; }
+        .leader-icon { width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); background: #000; }
 
         /* 돌림판 */
-        .roulette-container { background: #000; padding: 20px; text-align: center; border-radius: 15px; border: 3px solid var(--accent); margin-bottom: 20px; }
-        .main-pic-wrapper { width: 140px; height: 140px; border-radius: 50%; border: 4px solid var(--accent); margin: 0 auto 10px; background: #0f172a; overflow: hidden; display: flex; align-items: center; justify-content: center; }
-        #main-leader-pic { width: 100%; height: 100%; object-fit: cover; display: none; }
-        #main-wait-text { font-size: 1.8rem; font-weight: 900; color: var(--accent); }
-
-        /* 선수 그리드 5열 */
+        .roulette-box { background: #000; padding: 20px; border-radius: 20px; border: 2px solid var(--accent); margin-bottom: 20px; }
+        #main-leader-pic { width: 120px; height: 120px; border-radius: 50%; border: 3px solid var(--accent); display: none; margin: 0 auto 10px; }
+        
+        /* 드래프트 그리드 5열 */
         .draft-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
-        .draft-item { background: var(--card); border-radius: 8px; overflow: hidden; text-align: center; border: 1px solid #334155; }
-        .img-box { height: 130px; background: #000; display: flex; align-items: center; justify-content: center; position: relative; }
-        .p-img { width: 100%; height: 100%; object-fit: cover; position: absolute; }
+        .draft-item { background: var(--card); border-radius: 8px; border: 1px solid #334155; overflow: hidden; }
+        .img-placeholder { height: 120px; background: #000; display: flex; align-items: center; justify-content: center; position: relative; }
+        .p-img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; }
     </style>
 </head>
 <body>
-    <div class="app-wrapper">
-        <header class="main-header">
-            <img src="logo.jpg" class="logo-img" alt="LOGO" onerror="this.style.display='none';">
-        </header>
-        
-        <div class="points-board" id="points-board"></div>
 
-        <div class="roulette-container">
-            <div class="main-pic-wrapper">
-                <div id="main-wait-text">READY</div>
-                <img src="" id="main-leader-pic">
-            </div>
-            <div id="roulette-display" style="font-size:2rem; font-weight:900; margin-bottom:15px; height:2.5rem;">SPIN!</div>
-            <button onclick="spin()" id="spin-btn" style="background:var(--accent); color:#000; border:none; padding:10px 40px; font-weight:900; border-radius:30px; font-size:1.1rem; cursor:pointer;">SPIN</button>
-        </div>
+<div class="app-wrapper">
+    <header class="main-header">
+        <img src="logo.jpg" class="logo-img" alt="LOGO" onerror="this.style.display='none'; document.getElementById('logo-err').innerText='logo.jpg 파일을 찾을 수 없음';">
+        <div id="logo-err" class="err-msg"></div>
+    </header>
 
-        <div class="draft-grid" id="draft-grid"></div>
+    <div class="points-board" id="points-board"></div>
+
+    <div class="roulette-box">
+        <img src="" id="main-leader-pic">
+        <div id="roulette-name" style="font-size: 2rem; font-weight: 900; margin-bottom: 15px;">SPIN!</div>
+        <button onclick="spin()" id="spin-btn" style="background:var(--accent); border:none; padding:10px 40px; font-weight:900; border-radius:30px; cursor:pointer;">추첨 시작</button>
     </div>
 
-    <script>
-        const teams = [
-            { name: "밤베", points: 1000, file: "leader1.jpg" },
-            { name: "찌로³", points: 1000, file: "leader2.jpg" },
-            { name: "윰로로", points: 1000, file: "leader3.jpg" },
-            { name: "호발☆", points: 1000, file: "leader4.jpg" },
-            { name: "프하", points: 1000, file: "leader5.jpg" }
-        ];
+    <div class="draft-grid" id="draft-grid"></div>
+</div>
 
-        let currentIdx = null;
-        const players = Array.from({length: 55}, (_, i) => ({ id: i+1, cost: Math.floor(Math.random()*451)+150, sold: false }));
+<script>
+    const teams = [
+        { name: "밤베", points: 1000, file: "leader1.jpg" },
+        { name: "찌로³", points: 1000, file: "leader2.jpg" },
+        { name: "윰로로", points: 1000, file: "leader3.jpg" },
+        { name: "호발☆", points: 1000, file: "leader4.jpg" },
+        { name: "프하", points: 1000, file: "leader5.jpg" }
+    ];
 
-        function updateUI() {
-            document.getElementById('points-board').innerHTML = teams.map((t, i) => `
-                <div class="team-status ${currentIdx === i ? 'active' : ''}">
-                    <img src="${t.file}" class="leader-icon-sm" onerror="this.src='https://via.placeholder.com/60?text=L'">
-                    <div style="font-weight:900; font-size:0.9rem;">${t.name}</div>
-                    <div style="color:var(--accent); font-weight:bold; font-size:0.9rem;">${t.points.toLocaleString()}P</div>
-                </div>`).join('');
-            
-            document.getElementById('draft-grid').innerHTML = players.map((p, i) => `
-                <div class="draft-item" style="opacity:${p.sold?0.3:1}">
-                    <div class="img-box"><span style="font-size:2rem; font-weight:900; color:#334155;">${p.id}</span><img src="${p.id}.jpg" class="p-img" onerror="this.style.display='none'"></div>
-                    <div style="padding:8px;"><div style="color:var(--accent); font-weight:bold; font-size:1.1rem; margin-bottom:5px;">${p.cost}P</div><button onclick="buy(${i})" style="width:100%; padding:6px; border:none; background:var(--accent); font-weight:900; border-radius:4px; cursor:pointer;" ${p.sold?'disabled':''}>${p.sold?'완료':'영입'}</button></div>
-                </div>`).join('');
-        }
+    let currentIdx = null;
+    const players = Array.from({length: 55}, (_, i) => ({ id: i+1, cost: Math.floor(Math.random()*451)+150, sold: false }));
 
-        function spin() {
-            const btn = document.getElementById('spin-btn');
-            const pic = document.getElementById('main-leader-pic');
-            const txt = document.getElementById('main-wait-text');
-            btn.disabled = true;
-            pic.style.display = 'none';
-            txt.style.display = 'block';
+    function updateUI() {
+        document.getElementById('points-board').innerHTML = teams.map((t, i) => `
+            <div class="team-status ${currentIdx === i ? 'active' : ''}">
+                <img src="${t.file}" class="leader-icon" onerror="this.src='https://via.placeholder.com/60?text=Error'">
+                <div style="font-weight:900; font-size:0.9rem; margin-top:5px;">${t.name}</div>
+                <div style="color:var(--accent); font-size:0.8rem;">${t.points.toLocaleString()}P</div>
+            </div>`).join('');
+        
+        document.getElementById('draft-grid').innerHTML = players.map((p, i) => `
+            <div class="draft-item" style="opacity:${p.sold?0.3:1}">
+                <div class="img-placeholder">
+                    <span style="font-size:1.5rem; color:#334155;">${p.id}</span>
+                    <img src="${p.id}.jpg" class="p-img" onerror="this.style.display='none'">
+                </div>
+                <div style="padding:8px;">
+                    <div style="color:var(--accent); font-weight:bold; font-size:1rem;">${p.cost}P</div>
+                    <button onclick="buy(${i})" style="width:100%; border:none; background:var(--accent); font-weight:900; cursor:pointer; margin-top:5px;" ${p.sold?'disabled':''}>영입</button>
+                </div>
+            </div>`).join('');
+    }
 
-            let count = 0;
-            let interval = setInterval(() => {
-                let tempIdx = Math.floor(Math.random() * teams.length);
-                document.getElementById('roulette-display').innerText = teams[tempIdx].name;
-                if(count++ > 15) {
-                    clearInterval(interval);
-                    currentIdx = Math.floor(Math.random() * teams.length);
-                    const winner = teams[currentIdx];
-                    document.getElementById('roulette-display').innerHTML = `🎯 <span style="color:var(--accent)">${winner.name}</span>`;
-                    pic.src = winner.file;
-                    pic.onload = () => { pic.style.display = 'block'; txt.style.display = 'none'; };
-                    pic.onerror = () => { pic.style.display = 'none'; txt.style.display = 'block'; txt.innerText = winner.name; };
-                    btn.disabled = false;
-                    updateUI();
-                }
-            }, 80);
-        }
-
-        function buy(i) {
-            if(currentIdx === null) return;
-            const t = teams[currentIdx];
-            if(t.points >= players[i].cost) {
-                t.points -= players[i].cost;
-                players[i].sold = true;
-                currentIdx = null;
+    function spin() {
+        const btn = document.getElementById('spin-btn');
+        const pic = document.getElementById('main-leader-pic');
+        btn.disabled = true;
+        
+        let count = 0;
+        let interval = setInterval(() => {
+            let tempIdx = Math.floor(Math.random() * teams.length);
+            document.getElementById('roulette-name').innerText = teams[tempIdx].name;
+            if(count++ > 15) {
+                clearInterval(interval);
+                currentIdx = Math.floor(Math.random() * teams.length);
+                const winner = teams[currentIdx];
+                document.getElementById('roulette-name').innerText = "🎯 " + winner.name;
+                pic.src = winner.file;
+                pic.style.display = 'block';
+                btn.disabled = false;
                 updateUI();
-                document.getElementById('main-leader-pic').style.display = 'none';
-                document.getElementById('main-wait-text').style.display = 'block';
-                document.getElementById('main-wait-text').innerText = 'READY';
-                document.getElementById('roulette-display').innerText = 'SPIN!';
             }
+        }, 80);
+    }
+
+    function buy(i) {
+        if(currentIdx === null) return;
+        const t = teams[currentIdx];
+        if(t.points >= players[i].cost) {
+            t.points -= players[i].cost;
+            players[i].sold = true;
+            currentIdx = null;
+            updateUI();
+            document.getElementById('main-leader-pic').style.display = 'none';
         }
-        updateUI();
-    </script>
+    }
+    updateUI();
+</script>
 </body>
 </html>
