@@ -2,49 +2,51 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>버미더머니 : 연습생을 이겨라</title>
     <style>
         :root { --accent: #f59e0b; --bg: #0f172a; --card: #1e293b; --text: #f8fafc; }
         body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; }
         .app-wrapper { max-width: 1400px; margin: 0 auto; }
         
-        /* ★ 헤더 영역: 로고만 깔끔하게 나오도록 수정 ★ */
+        /* 헤더 로고 */
         .main-header { text-align: center; padding: 10px 0; margin-bottom: 20px; }
-        .logo-img { max-width: 350px; width: 100%; height: auto; display: block; margin: 0 auto; }
+        .logo-img { max-width: 300px; width: 100%; height: auto; display: block; margin: 0 auto; }
 
-        /* 현황판 5열 */
-        .points-board { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 25px; border-top: 1px solid #334155; padding-top: 25px; }
+        /* 리더 현황 5열 */
+        .points-board { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; margin-bottom: 20px; border-top: 1px solid #334155; padding-top: 20px; }
         .team-status { background: var(--card); padding: 15px; border-radius: 12px; text-align: center; border: 2px solid #334155; }
-        .team-status.active { border-color: var(--accent); box-shadow: 0 0 20px rgba(245, 158, 11, 0.4); transform: scale(1.05); }
-        .leader-icon-sm { width: 75px; height: 75px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); margin-bottom: 10px; background: #000; }
-        
-        /* 룰렛 */
-        .roulette-container { background: linear-gradient(180deg, #000 0%, #1e293b 100%); padding: 30px; text-align: center; border-radius: 20px; border: 3px solid var(--accent); margin-bottom: 30px; }
-        .main-pic-wrapper { width: 180px; height: 180px; border-radius: 50%; border: 5px solid var(--accent); margin: 0 auto 15px; background: #0f172a; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .team-status.active { border-color: var(--accent); box-shadow: 0 0 15px rgba(245, 158, 11, 0.4); transform: scale(1.05); }
+        .leader-icon-sm { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid var(--accent); margin-bottom: 10px; }
+
+        /* ★ 돌림판 영역 보강 ★ */
+        .roulette-container { background: #000; padding: 30px; text-align: center; border-radius: 20px; border: 3px solid var(--accent); margin-bottom: 30px; }
+        .main-pic-wrapper { 
+            width: 180px; height: 180px; border-radius: 50%; border: 5px solid var(--accent); 
+            margin: 0 auto 15px; background: #0f172a; overflow: hidden; 
+            display: flex; align-items: center; justify-content: center; position: relative;
+        }
+        /* 중앙 사진 스타일 */
         #main-leader-pic { width: 100%; height: 100%; object-fit: cover; display: none; }
-        
-        /* 선수 그리드 5열 */
-        .draft-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; }
-        .draft-item { background: var(--card); border-radius: 12px; overflow: hidden; border: 1px solid #334155; text-align: center; }
-        .img-box { height: 160px; background: #000; display: flex; align-items: center; justify-content: center; position: relative; }
-        .p-img { width: 100%; height: 100%; object-fit: cover; position: absolute; z-index: 2; }
+        #main-wait-text { font-size: 2.5rem; font-weight: 900; color: var(--accent); }
+
+        .draft-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+        .draft-item { background: var(--card); border-radius: 10px; overflow: hidden; text-align: center; border: 1px solid #334155; }
+        .img-box { height: 150px; background: #000; position: relative; }
+        .p-img { width: 100%; height: 100%; object-fit: cover; }
     </style>
 </head>
 <body>
     <div class="app-wrapper">
-        <header class="main-header">
-            <img src="logo.jpg" class="logo-img" alt="버미더머니 로고">
-        </header>
+        <header class="main-header"><img src="logo.jpg" class="logo-img" alt="LOGO"></header>
         
         <div class="points-board" id="points-board"></div>
 
         <div class="roulette-container">
             <div class="main-pic-wrapper">
-                <div id="main-wait-text" style="font-size:2.5rem; font-weight:900; color:var(--accent);">READY</div>
+                <div id="main-wait-text">READY</div>
                 <img src="" id="main-leader-pic">
             </div>
-            <div id="roulette-display" style="font-size:2.5rem; font-weight:900; margin-bottom:20px; height:3rem;">SPIN을 눌러주세요</div>
+            <div id="roulette-display" style="font-size:2.5rem; font-weight:900; margin-bottom:20px; height:3rem;">차례를 정해주세요</div>
             <button onclick="spin()" id="spin-btn" style="background:var(--accent); color:#000; border:none; padding:15px 70px; font-weight:900; border-radius:50px; font-size:1.4rem; cursor:pointer;">SPIN</button>
         </div>
 
@@ -59,6 +61,7 @@
             { name: "호발☆", points: 1000, file: "leader4.jpg" },
             { name: "프하", points: 1000, file: "leader5.jpg" }
         ];
+
         let currentIdx = null;
         const players = Array.from({length: 55}, (_, i) => ({ id: i+1, cost: Math.floor(Math.random()*451)+150, sold: false }));
 
@@ -66,36 +69,57 @@
             document.getElementById('points-board').innerHTML = teams.map((t, i) => `
                 <div class="team-status ${currentIdx === i ? 'active' : ''}">
                     <img src="${t.file}" class="leader-icon-sm" onerror="this.src='https://via.placeholder.com/80?text=L'">
-                    <div style="font-weight:900; font-size:1.1rem;">${t.name}</div>
+                    <div style="font-weight:900;">${t.name}</div>
                     <div style="color:var(--accent); font-weight:bold">${t.points.toLocaleString()}P</div>
                 </div>`).join('');
             
             document.getElementById('draft-grid').innerHTML = players.map((p, i) => `
                 <div class="draft-item" style="opacity:${p.sold?0.3:1}">
                     <div class="img-box"><span style="font-size:3rem; font-weight:900; color:#334155;">${p.id}</span><img src="${p.id}.jpg" class="p-img" onerror="this.style.display='none'"></div>
-                    <div class="p-info">
-                        <div style="color:var(--accent); font-weight:bold; font-size:1.3rem; margin-bottom:10px;">${p.cost}P</div>
-                        <button onclick="buy(${i})" style="width:100%; padding:10px; background:var(--accent); border:none; font-weight:900; border-radius:6px; cursor:pointer;" ${p.sold?'disabled':''}>${p.sold?'영입완료':'영입'}</button>
-                    </div>
+                    <div style="padding:10px;"><div style="color:var(--accent); font-weight:bold;">${p.cost}P</div><button onclick="buy(${i})" style="width:100%; padding:8px; border:none; background:var(--accent); font-weight:900; border-radius:5px; cursor:pointer;" ${p.sold?'disabled':''}>${p.sold?'완료':'영입'}</button></div>
                 </div>`).join('');
         }
 
+        // ★ 돌림판 실행 함수 (사진 노출 보강) ★
         function spin() {
             const btn = document.getElementById('spin-btn');
             const pic = document.getElementById('main-leader-pic');
             const txt = document.getElementById('main-wait-text');
+            
             btn.disabled = true;
+            pic.style.display = 'none'; // 돌리는 동안은 잠깐 가림
+            txt.style.display = 'block';
+
             let count = 0;
             let interval = setInterval(() => {
-                let temp = Math.floor(Math.random()*teams.length);
-                document.getElementById('roulette-display').innerText = teams[temp].name;
-                pic.src = teams[temp].file;
-                pic.style.display = 'block'; txt.style.display = 'none';
+                let tempIdx = Math.floor(Math.random() * teams.length);
+                let selected = teams[tempIdx];
+                
+                document.getElementById('roulette-display').innerText = selected.name;
+                
+                // 돌리는 도중에도 사진이 계속 바뀌게 하려면 아래 주석 해제 (단, 사양이 낮으면 버벅임)
+                // pic.src = selected.file; 
+                // pic.style.display = 'block'; txt.style.display = 'none';
+
                 if(count++ > 15) {
                     clearInterval(interval);
-                    currentIdx = Math.floor(Math.random()*teams.length);
-                    document.getElementById('roulette-display').innerHTML = `🎯 <span style="color:var(--accent)">${teams[currentIdx].name}</span>`;
-                    pic.src = teams[currentIdx].file;
+                    currentIdx = Math.floor(Math.random() * teams.length);
+                    const winner = teams[currentIdx];
+                    
+                    document.getElementById('roulette-display').innerHTML = `🎯 <span style="color:var(--accent)">${winner.name}</span>`;
+                    
+                    // 최종 결과 사진 띄우기
+                    pic.src = winner.file;
+                    pic.onload = () => {
+                        pic.style.display = 'block';
+                        txt.style.display = 'none';
+                    };
+                    pic.onerror = () => {
+                        pic.style.display = 'none';
+                        txt.style.display = 'block';
+                        txt.innerText = winner.name; // 사진 없으면 이름이라도 크게
+                    };
+
                     btn.disabled = false;
                     updateUI();
                 }
@@ -116,6 +140,7 @@
                 document.getElementById('roulette-display').innerText = 'SPIN을 눌러주세요';
             }
         }
+
         updateUI();
     </script>
 </body>
