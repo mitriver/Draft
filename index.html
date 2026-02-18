@@ -8,7 +8,7 @@
         body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; }
         .app-wrapper { max-width: 1200px; margin: 0 auto; text-align: center; }
         
-        /* 헤더 로고 유지 (작은 크기) */
+        /* 헤더 로고 유지 */
         .main-header { padding: 10px 0; margin-bottom: 10px; }
         .logo-img { width: 150px; height: auto; display: block; margin: 0 auto; }
 
@@ -25,7 +25,6 @@
             margin: 0 auto 15px; background: #0f172a; overflow: hidden; 
             display: flex; align-items: center; justify-content: center; position: relative;
         }
-        /* ★ 중앙 사진: 기본적으로 보이게 설정 ★ */
         #main-leader-pic { width: 100%; height: 100%; object-fit: cover; display: none; }
         #main-wait-text { font-size: 2rem; font-weight: 900; color: var(--accent); }
         
@@ -50,7 +49,7 @@
             <div id="main-wait-text">READY</div>
             <img src="" id="main-leader-pic">
         </div>
-        <div id="roulette-name" style="font-size: 2.2rem; font-weight: 900; margin-bottom: 20px; height: 3rem;">SPIN을 눌러주세요</div>
+        <div id="roulette-name" style="font-size: 2.2rem; font-weight: 900; margin-bottom: 20px; height: 3.5rem;">SPIN을 눌러주세요</div>
         <button onclick="spin()" id="spin-btn" style="background:var(--accent); color:#000; border:none; padding:12px 60px; font-weight:900; border-radius:40px; font-size:1.2rem; cursor:pointer; box-shadow: 0 4px 0 #b45309;">SPIN</button>
     </div>
 
@@ -90,7 +89,6 @@
             </div>`).join('');
     }
 
-    // ★ 돌림판 사진 연출 로직 ★
     function spin() {
         const btn = document.getElementById('spin-btn');
         const pic = document.getElementById('main-leader-pic');
@@ -102,7 +100,6 @@
 
         let count = 0;
         let shuffle = setInterval(() => {
-            // 돌아가는 동안 사진과 이름이 랜덤하게 바뀜
             let tempIdx = Math.floor(Math.random() * teams.length);
             pic.src = teams[tempIdx].file;
             document.getElementById('roulette-name').innerText = teams[tempIdx].name;
@@ -112,8 +109,8 @@
                 currentIdx = Math.floor(Math.random() * teams.length);
                 const winner = teams[currentIdx];
                 
-                // 최종 결과 출력
-                document.getElementById('roulette-name').innerHTML = `🎯 <span style="color:var(--accent)">${winner.name}</span>`;
+                // ★ 요청하신 "누구 차례입니다!" 문구 추가 ★
+                document.getElementById('roulette-name').innerHTML = `🎯 <span style="color:var(--accent)">${winner.name}</span> 차례입니다!`;
                 pic.src = winner.file;
                 
                 btn.disabled = false;
@@ -131,7 +128,6 @@
             currentIdx = null;
             updateUI();
             
-            // 영입 후 초기화
             document.getElementById('main-leader-pic').style.display = 'none';
             document.getElementById('main-wait-text').style.display = 'block';
             document.getElementById('roulette-name').innerText = 'SPIN을 눌러주세요';
